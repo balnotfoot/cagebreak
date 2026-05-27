@@ -28,12 +28,13 @@ jobs:
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
             libgbm-dev libpciaccess-dev libegl1-mesa-dev libgles2-mesa-dev \
             libdisplay-info-dev libliftoff-dev libxml2-dev \
+            bison flex \
             gcc g++
 
           # Set up PKG_CONFIG_PATH early to capture all custom built libraries
           export PKG_CONFIG_PATH="/usr/local/lib/$(gcc -print-multiarch)/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
-          # 1. Clone and compile libdrm 2.4.129 (Required by wlroots 0.20.0)
+          # 1. Clone and compile libdrm 2.4.129
           git clone --depth=1 --branch libdrm-2.4.129 https://gitlab.freedesktop.org/mesa/drm.git /tmp/libdrm
           cd /tmp/libdrm
           meson setup build -Dtests=false -Dvalgrind=disabled --buildtype=release
@@ -41,7 +42,7 @@ jobs:
           meson install -C build
           cd /workspace
 
-          # 2. Clone and compile Wayland 1.24.0 (Required by wlroots 0.20.0)
+          # 2. Clone and compile Wayland 1.24.0
           git clone --depth=1 --branch 1.24.0 https://gitlab.freedesktop.org/wayland/wayland.git /tmp/wayland
           cd /tmp/wayland
           meson setup build -Ddocumentation=false -Dtests=false --buildtype=release
@@ -49,7 +50,15 @@ jobs:
           meson install -C build
           cd /workspace
 
-          # 3. Clone and compile wlroots 0.20.0
+          # 3. Clone and compile libxkbcommon 1.8.0 (Required by wlroots 0.20.0)
+          git clone --depth=1 --branch xkbcommon-1.8.0 https://github.com/xkbcommon/libxkbcommon.git /tmp/libxkbcommon
+          cd /tmp/libxkbcommon
+          meson setup build -Denable-docs=false -Denable-tools=false -Denable-x11=false --buildtype=release
+          ninja -C build
+          meson install -C build
+          cd /workspace
+
+          # 4. Clone and compile wlroots 0.20.0
           git clone --depth=1 --branch 0.20.0 https://gitlab.freedesktop.org/wlroots/wlroots.git /tmp/wlroots
           cd /tmp/wlroots
           meson setup build -Dxwayland=disabled -Dexamples=false --buildtype=release
@@ -57,7 +66,7 @@ jobs:
           meson install -C build
           cd /workspace
 
-          # 4. Build Cagebreak
+          # 5. Build Cagebreak
           meson setup build-amd64 -Dxwayland=false -Dman-pages=false --buildtype=release
           ninja -C build-amd64
         '
@@ -96,12 +105,13 @@ jobs:
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
             libgbm-dev libpciaccess-dev libegl1-mesa-dev libgles2-mesa-dev \
             libdisplay-info-dev libliftoff-dev libxml2-dev \
+            bison flex \
             gcc g++
 
           # Set up PKG_CONFIG_PATH early to capture all custom built libraries
           export PKG_CONFIG_PATH="/usr/local/lib/$(gcc -print-multiarch)/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
-          # 1. Clone and compile libdrm 2.4.129 (Required by wlroots 0.20.0)
+          # 1. Clone and compile libdrm 2.4.129
           git clone --depth=1 --branch libdrm-2.4.129 https://gitlab.freedesktop.org/mesa/drm.git /tmp/libdrm
           cd /tmp/libdrm
           meson setup build -Dtests=false -Dvalgrind=disabled --buildtype=release
@@ -109,7 +119,7 @@ jobs:
           meson install -C build
           cd /workspace
 
-          # 2. Clone and compile Wayland 1.24.0 (Required by wlroots 0.20.0)
+          # 2. Clone and compile Wayland 1.24.0
           git clone --depth=1 --branch 1.24.0 https://gitlab.freedesktop.org/wayland/wayland.git /tmp/wayland
           cd /tmp/wayland
           meson setup build -Ddocumentation=false -Dtests=false --buildtype=release
@@ -117,7 +127,15 @@ jobs:
           meson install -C build
           cd /workspace
 
-          # 3. Clone and compile wlroots 0.20.0
+          # 3. Clone and compile libxkbcommon 1.8.0 (Required by wlroots 0.20.0)
+          git clone --depth=1 --branch xkbcommon-1.8.0 https://github.com/xkbcommon/libxkbcommon.git /tmp/libxkbcommon
+          cd /tmp/libxkbcommon
+          meson setup build -Denable-docs=false -Denable-tools=false -Denable-x11=false --buildtype=release
+          ninja -C build
+          meson install -C build
+          cd /workspace
+
+          # 4. Clone and compile wlroots 0.20.0
           git clone --depth=1 --branch 0.20.0 https://gitlab.freedesktop.org/wlroots/wlroots.git /tmp/wlroots
           cd /tmp/wlroots
           meson setup build -Dxwayland=disabled -Dexamples=false --buildtype=release
@@ -125,7 +143,7 @@ jobs:
           meson install -C build
           cd /workspace
 
-          # 4. Build Cagebreak
+          # 5. Build Cagebreak
           meson setup build-arm64 -Dxwayland=false -Dman-pages=false --buildtype=release
           ninja -C build-arm64
         '
