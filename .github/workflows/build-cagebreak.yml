@@ -119,7 +119,7 @@ jobs:
             libwayland-dev wayland-protocols \
             libxkbcommon-dev libinput-dev libpixman-1-dev \
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
-            libgbm-dev pciaccess-dev libegl1-mesa-dev libgles2-mesa-dev \
+            libgbm-dev libpciaccess-dev libegl1-mesa-dev libgles2-mesa-dev \
             libdisplay-info-dev libliftoff-dev libxml2-dev \
             libseat-dev bison flex \
             gcc g++
