@@ -20,19 +20,31 @@ jobs:
 
     - name: Build inside Debian 13 (Trixie) AMD64 Container
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace debian:trixie-slim sh -c "
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace debian:trixie-slim sh -c '
           apt-get update && apt-get install -y \
             git meson ninja-build pkg-config \
             libwayland-dev wayland-protocols \
             libxkbcommon-dev libinput-dev libpixman-1-dev \
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
             libgbm-dev libdrm-dev libegl1-mesa-dev libgles2-mesa-dev \
-            libwlroots*-dev \
+            libdisplay-info-dev libliftoff-dev \
             gcc g++
 
+          # 1. Clone and compile wlroots 0.20.0 from source
+          git clone --depth=1 --branch 0.20.0 https://gitlab.freedesktop.org/wlroots/wlroots.git /tmp/wlroots
+          cd /tmp/wlroots
+          meson setup build -Dxwayland=disabled -Dexamples=false --buildtype=release
+          ninja -C build
+          meson install -C build
+          cd /workspace
+
+          # 2. Update Path so Meson can detect the newly compiled wlroots
+          export PKG_CONFIG_PATH="/usr/local/lib/$(gcc -print-multiarch)/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+
+          # 3. Build Cagebreak
           meson setup build-amd64 -Dxwayland=false -Dman-pages=false --buildtype=release
           ninja -C build-amd64
-"
+        '
 
     - name: Upload AMD64 Binary Artifact
       uses: actions/upload-artifact@v4
@@ -60,19 +72,31 @@ jobs:
 
     - name: Build inside Debian 13 (Trixie) ARM64 Container
       run: |
-        docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace -w /workspace debian:trixie-slim sh -c "
+        docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace -w /workspace debian:trixie-slim sh -c '
           apt-get update && apt-get install -y \
             git meson ninja-build pkg-config \
             libwayland-dev wayland-protocols \
             libxkbcommon-dev libinput-dev libpixman-1-dev \
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
             libgbm-dev libdrm-dev libegl1-mesa-dev libgles2-mesa-dev \
-            libwlroots*-dev \
+            libdisplay-info-dev libliftoff-dev \
             gcc g++
 
+          # 1. Clone and compile wlroots 0.20.0 from source
+          git clone --depth=1 --branch 0.20.0 https://gitlab.freedesktop.org/wlroots/wlroots.git /tmp/wlroots
+          cd /tmp/wlroots
+          meson setup build -Dxwayland=disabled -Dexamples=false --buildtype=release
+          ninja -C build
+          meson install -C build
+          cd /workspace
+
+          # 2. Update Path using multiarch directory helper (handles aarch64-linux-gnu automatically)
+          export PKG_CONFIG_PATH="/usr/local/lib/$(gcc -print-multiarch)/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+
+          # 3. Build Cagebreak
           meson setup build-arm64 -Dxwayland=false -Dman-pages=false --buildtype=release
           ninja -C build-arm64
-"
+        '
 
     - name: Upload ARM64 Binary Artifact
       uses: actions/upload-artifact@v4
