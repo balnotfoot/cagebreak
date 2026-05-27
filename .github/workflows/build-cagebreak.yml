@@ -7,6 +7,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build-amd64:
     runs-on: ubuntu-latest
@@ -124,7 +127,7 @@ jobs:
     needs: [build-amd64, build-arm64]
     runs-on: ubuntu-latest
     permissions:
-      contents: write # 리포지토리에 Release를 생성/수정할 수 있는 권한 고정
+      contents: write
 
     steps:
     - name: Download AMD64 Artifact
@@ -152,7 +155,7 @@ jobs:
         name: "Latest Automated Build"
         body: "Automated binary compilation for Debian 13 (Trixie). Updated on ${{ github.event.head_commit.timestamp || 'Manual Trigger' }}."
         draft: false
-        prerelease: true # 지속적 빌드이므로 프리릴리즈로 안전하게 표시
+        prerelease: true
         files: |
           ./release-assets/cagebreak-debian13-amd64
           ./release-assets/cagebreak-debian13-arm64
