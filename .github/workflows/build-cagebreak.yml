@@ -23,12 +23,14 @@ jobs:
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace debian:trixie-slim sh -c "
           apt-get update && apt-get install -y \
             git meson ninja-build pkg-config \
-            libwayland-dev wayland-protocols libwlroots-dev \
+            libwayland-dev wayland-protocols \
             libxkbcommon-dev libinput-dev libpixman-1-dev \
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
+            libgbm-dev libdrm-dev libegl1-mesa-dev libgles2-mesa-dev \
             gcc g++
 
-          meson setup build-amd64 -Dxwayland=false -Dman-pages=false --buildtype=release
+          # Use meson to download and build wlroots as a subproject if missing
+          meson setup build-amd64 -Dxwayland=false -Dman-pages=false --buildtype=release --wrap-mode=forcefallback
           ninja -C build-amd64
         "
 
@@ -61,12 +63,14 @@ jobs:
         docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace -w /workspace debian:trixie-slim sh -c "
           apt-get update && apt-get install -y \
             git meson ninja-build pkg-config \
-            libwayland-dev wayland-protocols libwlroots-dev \
+            libwayland-dev wayland-protocols \
             libxkbcommon-dev libinput-dev libpixman-1-dev \
             libcairo2-dev libpango1.0-dev libudev-dev libevdev-dev \
+            libgbm-dev libdrm-dev libegl1-mesa-dev libgles2-mesa-dev \
             gcc g++
 
-          meson setup build-arm64 -Dxwayland=false -Dman-pages=false --buildtype=release
+          # Use meson to download and build wlroots as a subproject if missing
+          meson setup build-arm64 -Dxwayland=false -Dman-pages=false --buildtype=release --wrap-mode=forcefallback
           ninja -C build-arm64
         "
 
